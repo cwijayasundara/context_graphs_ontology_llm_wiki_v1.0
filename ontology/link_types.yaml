@@ -1,0 +1,102 @@
+# Link Types — the "predicates" between Objects.
+# Every link in a wiki page's frontmatter must use one of these `type` values.
+
+- id: works_at
+  from: Person
+  to: Customer
+  symmetric: false
+
+- id: operates_in
+  # An entity that operates within a region, platform, market, or product
+  # ecosystem. The 'from' side widened to include Product (e.g. NVIDIA NIM
+  # microservice operates in the AI inference market) and Person (where they
+  # work / what market they serve).
+  from: [Customer, Product, Person]
+  to: [Customer, Concept, Product, Person]
+  symmetric: false
+
+- id: has_sla
+  from: Customer
+  to: Concept           # e.g. an SLA tier concept
+  symmetric: false
+
+- id: owns
+  # An owner-of relationship. Persons own personal products (the original
+  # use case); Customers (companies) own product lines and subsidiaries;
+  # Products may own sub-products (e.g. a platform owns its components).
+  from: [Person, Customer, Product]
+  to: Product
+  symmetric: false
+
+- id: derived_from
+  from: [Customer, Concept, Person, Product]
+  to: [Customer, Concept, Source, Product, Person]
+  symmetric: false
+
+- id: mentions
+  from: [Source, Customer, Product, Concept, Person]
+  to: [Customer, Person, Product, Concept]
+  symmetric: false
+
+- id: contradicts
+  from: [Source, Concept]
+  to: [Source, Concept]
+  symmetric: true
+
+- id: part_of
+  # Inverse of owns: a Product/Person/Concept/Customer that belongs to a
+  # parent Customer / Product / Concept (e.g. google_cloud part_of alphabet_inc;
+  # gemini_ai part_of google_cloud; data_center_market part_of computing_market).
+  from: [Product, Person, Concept, Customer]
+  to: [Customer, Product, Concept]
+  symmetric: false
+
+- id: cites_evidence
+  from: Memo
+  to: [Customer, Person, Product, Concept, Source, Memo]
+  symmetric: false
+
+- id: flags_concept
+  from: Memo
+  to: [Customer, Concept, Source]
+  symmetric: false
+
+- id: targets
+  # Originally Memo->entity. Widened to Product->entity (a product targets a
+  # market/segment/customer) since the LLM ingestor uses this verb generically
+  # for "this thing is aimed at that thing."
+  from: [Memo, Product]
+  to: [Customer, Concept, Person, Product]
+  symmetric: false
+
+# --- Decision-graph link types -------------------------------------------------
+
+- id: triggered_by
+  # Decision was triggered by some piece of evidence (an event, a memo, a concept).
+  from: Decision
+  to: [Memo, Concept, Customer, Source]
+  symmetric: false
+
+- id: justified_by
+  # Decision cites evidence pages that justify it.
+  from: Decision
+  to: [Memo, Concept, Customer, Person, Product, Source]
+  symmetric: false
+
+- id: approved_by
+  # Decision was approved by a Person (HITL).
+  from: Decision
+  to: Person
+  symmetric: false
+
+- id: affects
+  # Decision affects an entity (the target of the action).
+  from: Decision
+  to: [Customer, Person, Product, Concept, Memo]
+  symmetric: false
+
+- id: precedes
+  # Earlier decision used as precedent for a later one.
+  from: Decision
+  to: Decision
+  symmetric: false

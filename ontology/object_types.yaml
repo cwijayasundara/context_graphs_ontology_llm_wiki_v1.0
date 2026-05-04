@@ -1,0 +1,45 @@
+# Object Types — the "nouns" of the domain.
+# Each entity in wiki/entities/<id>.md must declare a `type` matching an id below.
+# Replace these starters with your domain types.
+
+- id: Customer
+  description: A buying organization or individual.
+  required_properties: [name]
+  optional_properties: [region, tier, industry, primary_contact]
+  identity_property: name
+
+- id: Product
+  description: A sellable item or service.
+  required_properties: [name, sku]
+  optional_properties: [category, version, owner_team]
+  identity_property: sku
+
+- id: Person
+  description: A human, internal or external.
+  required_properties: [name]
+  optional_properties: [role, email, employer]
+  identity_property: email
+
+- id: Concept
+  description: An idea, framework, policy, or domain term that warrants its own page.
+  required_properties: [name]
+  optional_properties: [domain]
+  identity_property: name
+
+- id: Source
+  description: An ingested raw artifact (doc, dataset, API snapshot).
+  required_properties: [name, raw_path]
+  optional_properties: [author, published_at, source_class]
+  identity_property: raw_path
+
+- id: Memo
+  description: An auditable research memo derived from the wiki+graph for a target entity. Carries traversal scope, freshness warnings, contradictions, and an evidence chain.
+  required_properties: [title, target_entity, generated_at]
+  optional_properties: [hops, claim_count, contradictions_count, freshness_warnings_count]
+  identity_property: title
+
+- id: Decision
+  description: An audited record of an Action Type invocation. Captures the actor, scopes, inputs, result, approval status, and the state-of-world fingerprint at decision time so the decision is fully replayable.
+  required_properties: [action_id, actor, ts, action_outcome]
+  optional_properties: [approved, scopes, inputs_summary, result_summary, wiki_fingerprint, ontology_fingerprint, decision_class]
+  identity_property: ts

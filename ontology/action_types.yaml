@@ -1,0 +1,72 @@
+# Action Types — the "verbs" agents are allowed to invoke.
+# These are the ONLY write surfaces. Each maps to a function in ontology/functions/.
+# `scope` controls who/what can invoke it. `requires_approval: true` mediates via human.
+
+- id: create_customer
+  description: Create a local wiki customer record through the audited action adapter.
+  inputs:
+    name: {type: str, required: true}
+    region: {type: enum, values: [NA, EU, APAC, LATAM], required: true}
+    tier: {type: enum, values: [t1, t2, t3], required: false, default: t3}
+  preconditions: [region_active]
+  side_effects: [wiki.upsert_entity, audit.log]
+  scope: sales_ops
+  function: create_customer
+
+- id: trigger_purchase_order
+  description: Queue a local purchase-order intent in the audit log (no external ERP write).
+  inputs:
+    supplier_id: {type: ref, target: Customer, required: true}
+    amount_usd: {type: float, required: true, min: 0}
+    line_items: {type: "list[str]", required: true}
+  preconditions: [supplier_active, budget_available]
+  side_effects: [audit.log]
+  scope: procurement_admin
+  requires_approval: true
+  function: trigger_purchase_order
+
+- id: run_allocation_scenario
+  description: Read-only simulation; safe to expose broadly.
+  inputs:
+    plant_id: {type: ref, target: Customer, required: true}
+    horizon_days: {type: int, required: true, min: 1, max: 365}
+  preconditions: []
+  side_effects: [wiki.append_synthesis]
+  scope: any_authenticated
+  function: run_allocation_scenario
+
+- id: file_synthesis
+  description: Promote a query answer into wiki/synthesis/ as a durable page.
+  inputs:
+    title: {type: str, required: true}
+    body_markdown: {type: str, required: true}
+    cites: {type: "list[str]", required: true}
+  preconditions: []
+  side_effects: [wiki.append_synthesis, audit.log]
+  scope: any_authenticated
+  function: file_synthesis
+
+- id: publish_intel_memo
+  description: Promote an Entity Intelligence Memo (typed, audited, with evidence chain and reasoning trace) to wiki/memos/.
+  inputs:
+    title: {type: str, required: true}
+    target_entity: {type: ref, target: Customer, required: true}
+    body_markdown: {type: str, required: true}
+    cites: {type: "list[str]", required: true}
+    flagged: {type: "list[str]", required: false, default: []}
+    reasoning_trace: {type: dict, required: true}
+  preconditions: []
+  side_effects: [wiki.upsert_memo, graph.write_trace, audit.log]
+  scope: any_authenticated
+  function: publish_intel_memo
+
+- id: flag_concept_review
+  description: Mark a wiki concept as needing human review (stale, contradicting, or low-confidence). Idempotent; appends to a review queue.
+  inputs:
+    concept_id: {type: str, required: true}
+    reason: {type: enum, values: [stale, contradiction, low_confidence, coverage_gap], required: true}
+    detail: {type: str, required: true}
+  preconditions: []
+  side_effects: [graph.append_review_queue, audit.log]
+  scope: any_authenticated
+  function: flag_concept_review

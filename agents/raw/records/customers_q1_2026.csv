@@ -1,0 +1,6 @@
+customer_id,legal_name,hq_region,account_tier,primary_contact_email,primary_contact_name
+acme,ACME Corporation,NA,t1,sarah.morton@acme.example,Sarah Morton
+globex,Globex Inc.,EU,t2,daniel.chen@globex.example,Daniel Chen
+initech,Initech LLC,NA,t3,lisa.park@initech.example,Lisa Park
+hooli,Hooli Holdings,APAC,t1,raj.patel@hooli.example,Raj Patel
+soylent,Soylent Industries,LATAM,t3,maria.silva@soylent.example,Maria Silva
