@@ -28,6 +28,8 @@ venv/
 .DS_Store
 .idea/
 .vscode/
+# Obsidian local workspace state (open tabs, sidebar layout)
+.obsidian/
 # local Claude Code state
 .claude/
 
